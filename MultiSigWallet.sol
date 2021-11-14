@@ -8,6 +8,7 @@ contract MultiSigWallet {
         address from;
         address to;
         uint amount;
+        uint numTransferApproval;
     }
     
     TransferRequest[] transferReqs;
@@ -36,7 +37,7 @@ contract MultiSigWallet {
         require(isApproved[msg.sender], "Address not approved");
         require(balance[msg.sender] >= amount, "Balance not sufficient");
         require(msg.sender != recipient, "Don't transfer money to yourself");
-        transferReqs.push(TransferRequest(msg.sender, recipient, amount));
+        transferReqs.push(TransferRequest(msg.sender, recipient, amount, 1));
     } 
     
     function getContractOwner() public view returns (address) {
