@@ -40,6 +40,11 @@ contract MultiSigWallet {
         transferReqs.push(TransferRequest(msg.sender, recipient, amount, 1));
     } 
     
+    function approveTransferRequest() public {
+        // todo check number of approvals for TransferRequest
+        // todo if ok, execute transfer
+    }
+    
     function getContractOwner() public view returns (address) {
         return owner;
     }
