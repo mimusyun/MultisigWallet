@@ -5,45 +5,25 @@ pragma solidity 0.7.5;
 contract MultiSigWallet {
     
     address owner;
-    address[] approversAddrs;
+    address[] ownerAddrs;
     uint numApproval;
     mapping(address => uint) balance;
-    mapping(address => bool) approver;
+    mapping(address => bool) isApproved;
     
-    constructor() {
+    constructor(address[] memory _ownerAddrs, uint _numApproval) {
+        require(_numApproval > 0, "Number of approvals needs to be more than zero");
+        require(_numApproval <= _ownerAddrs.length, "The number of required approvals cannot exceed the number of approvers");
         owner = msg.sender;
-        numApproval = 1;
-        approver[msg.sender] = true;
-        approversAddrs.push(owner);
+        ownerAddrs = _ownerAddrs;
+        numApproval = _numApproval;
+        for (uint i=0; i<_ownerAddrs.length; i++) {
+            isApproved[_ownerAddrs[i]] = true;
+        }
     }
     
     function deposit() public payable returns (uint) {
         balance[msg.sender] += msg.value;
         return balance[msg.sender];
-    }
-    
-    function registerNewApprovers(address[] memory _newApproversAddrs, uint _numApproval) public returns (bool) {
-        require(msg.sender == owner, "Only Contract Owner can execute this function");
-        require(_numApproval > 0, "Number of approvals needs to be more than zero");
-        require(_numApproval <= _newApproversAddrs.length + approversAddrs.length, "The number of approvals must be less than the number of approvers");
-        for (uint i=0; i<_newApproversAddrs.length; i++) {
-            require(!approver[_newApproversAddrs[i]], "Input address is already an approver");
-        }
-        
-        numApproval = _numApproval;
-        
-        for (uint i=0; i<_newApproversAddrs.length; i++) {
-            approver[_newApproversAddrs[i]] = true;
-            approversAddrs.push(_newApproversAddrs[i]);
-        }
-        return true;
-    }
-    
-    function updateNumApproval(uint _numApproval) public returns (bool) {
-        require(_numApproval > 0, "Number of approvals needs to be more than zero");
-        require(_numApproval <= approversAddrs.length, "The number of approvals must be less than the number of approvers");
-        numApproval = _numApproval;
-        return true;
     }
     
     function getContractOwner() public view returns (address) {
@@ -55,7 +35,7 @@ contract MultiSigWallet {
     }
     
     function getApprovalRight() public view returns (bool) {
-        return approver[msg.sender];
+        return isApproved[msg.sender];
     }
     
     function getRequiredNumApproval() public view returns (uint) {
@@ -63,7 +43,7 @@ contract MultiSigWallet {
     }
     
     function getApprovalInfo() public view returns (address[] memory, uint) {
-        return (approversAddrs, numApproval);
+        return (ownerAddrs, numApproval);
     }
     
 }
