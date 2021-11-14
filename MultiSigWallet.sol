@@ -25,6 +25,11 @@ contract MultiSigWallet {
         balance[msg.sender] += msg.value;
     }
     
+    function transferRequest(uint amount, address recipient) public {
+        require(balance[msg.sender] >= amount, "Balance not sufficient");
+        require(msg.sender != recipient, "Don't transfer money to yourself");
+    } 
+    
     function getContractOwner() public view returns (address) {
         return owner;
     }
