@@ -4,6 +4,8 @@ pragma solidity 0.7.5;
 
 contract MultiSigWallet {
     
+    // TODO impl TransferRequest struct
+    // TODO add TransferRequestQueue
     address owner;
     address[] ownerAddrs;
     uint numApproval;
@@ -28,6 +30,7 @@ contract MultiSigWallet {
     function transferRequest(uint amount, address recipient) public {
         require(balance[msg.sender] >= amount, "Balance not sufficient");
         require(msg.sender != recipient, "Don't transfer money to yourself");
+        // TODO push event to TransferRequestQueue
     } 
     
     function getContractOwner() public view returns (address) {
