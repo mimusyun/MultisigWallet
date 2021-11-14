@@ -21,9 +21,8 @@ contract MultiSigWallet {
         }
     }
     
-    function deposit() public payable returns (uint) {
+    function deposit() public payable {
         balance[msg.sender] += msg.value;
-        return balance[msg.sender];
     }
     
     function getContractOwner() public view returns (address) {
