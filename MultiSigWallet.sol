@@ -5,25 +5,22 @@ pragma solidity 0.7.5;
 contract MultiSigWallet {
     
     struct TransferRequest {
-        address from;
-        address to;
+        address fromAddr;
+        address payable toAddr;
         uint amount;
-        uint numTransferApproval;
     }
     
     TransferRequest[] transferReqs;
     address owner;
-    address[] ownerAddrs;
-    uint numApproval;
+    uint numRequiredApproval;
     mapping(address => uint) balance;
     mapping(address => bool) isApproved;
     
-    constructor(address[] memory _ownerAddrs, uint _numApproval) {
-        require(_numApproval > 0, "Number of approvals needs to be more than zero");
-        require(_numApproval <= _ownerAddrs.length, "The number of required approvals cannot exceed the number of approvers");
+    constructor(address[] memory _ownerAddrs, uint _numRequiredApproval) {
+        require(_numRequiredApproval > 0, "Number of approvals needs to be more than zero");
+        require(_numRequiredApproval <= _ownerAddrs.length, "The number of required approvals cannot exceed the number of approvers");
         owner = msg.sender;
-        ownerAddrs = _ownerAddrs;
-        numApproval = _numApproval;
+        numRequiredApproval = _numRequiredApproval;
         for (uint i=0; i<_ownerAddrs.length; i++) {
             isApproved[_ownerAddrs[i]] = true;
         }
@@ -33,18 +30,18 @@ contract MultiSigWallet {
         balance[msg.sender] += msg.value;
     }
     
-    function transferRequest(uint amount, address recipient) public {
-        require(isApproved[msg.sender], "Address not approved");
-        require(balance[msg.sender] >= amount, "Balance not sufficient");
+    function createTransferRequest(uint amount, address payable recipient) public {
+        require(isApproved[msg.sender], "Address not owner");
         require(msg.sender != recipient, "Don't transfer money to yourself");
-        transferReqs.push(TransferRequest(msg.sender, recipient, amount, 1));
+        transferReqs.push(TransferRequest(msg.sender, recipient, amount));
     } 
     
-    function approveTransferRequest() public {
-        // todo check number of approvals for TransferRequest
-        // todo if ok, execute transfer
+    function approveTransferRequest(uint id) public {
+        require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
+        // todo impl approval
     }
     
+    /* Getter below */
     function getContractOwner() public view returns (address) {
         return owner;
     }
@@ -58,11 +55,7 @@ contract MultiSigWallet {
     }
     
     function getRequiredNumApproval() public view returns (uint) {
-        return numApproval;
-    }
-    
-    function getApprovalInfo() public view returns (address[] memory, uint) {
-        return (ownerAddrs, numApproval);
+        return numRequiredApproval;
     }
     
 }
