@@ -11,7 +11,7 @@ contract MultiSigWallet {
     }
     
     TransferRequest[] transferReqs;
-    mapping(address => mapping(address => uint)) transferApprovals;
+    mapping(address => mapping(address => mapping(uint => uint))) transferApprovals;
     
     address owner;
     uint numRequiredApproval;
@@ -40,9 +40,7 @@ contract MultiSigWallet {
     
     function approveTransferRequest(uint id) public {
         require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
-        // todo impl approval
-        transferApprovals[transferReqs[id].fromAddr][transferReqs[id].toAddr] += 1;
-        
+        transferApprovals[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] += 1;
     }
     
     /* Getter below */
