@@ -8,6 +8,7 @@ contract MultiSigWallet {
         address fromAddr;
         address payable toAddr;
         uint amount;
+        bool complete;
     }
     
     TransferRequest[] transferReqs;
@@ -37,16 +38,18 @@ contract MultiSigWallet {
     function createTransferRequest(uint amount, address payable recipient) public {
         require(isApproved[msg.sender], "Address not owner");
         require(msg.sender != recipient, "Don't transfer money to yourself");
-        transferReqs.push(TransferRequest(msg.sender, recipient, amount));
+        transferReqs.push(TransferRequest(msg.sender, recipient, amount, false));
     } 
     
     function approveTransferRequest(uint id) public {
         require(isApproved[msg.sender], "Address not owner");
+        require(!transferReqs[id].complete, "Transfer already complete");
         require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
         transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] += 1;
         if (transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] >= numRequiredApproval) {
             balance[transferReqs[id].fromAddr] -= transferReqs[id].amount;
             balance[transferReqs[id].toAddr] += transferReqs[id].amount;
+            transferReqs[id].complete = true;
         }
     }
     
