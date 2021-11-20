@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Unliscenced
 
 pragma solidity 0.7.5;
+pragma abicoder v2;
 
 contract MultiSigWallet {
     
@@ -11,13 +12,13 @@ contract MultiSigWallet {
         bool complete;
     }
     
+    address[] public owners;
+    uint numRequiredApproval;
     TransferRequest[] transferReqs;
     
     /* transferApprovalCnt {FromAddress => {ToAddress => {TrxIdx => ApproveCnt}} */
     mapping(address => mapping(address => mapping(uint => uint))) transferApprovalCnt;
     
-    address[] public owners;
-    uint numRequiredApproval;
     mapping(address => uint) balance;
     mapping(address => bool) isApproved;
     
@@ -66,6 +67,10 @@ contract MultiSigWallet {
     
     function getRequiredNumApproval() public view returns (uint) {
         return numRequiredApproval;
+    }
+    
+    function getTransferRequests() public view returns (TransferRequest[] memory){
+        return transferReqs;
     }
     
 }
