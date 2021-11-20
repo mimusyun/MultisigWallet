@@ -56,7 +56,7 @@ contract MultiSigWallet {
         // execute transfer
         if (transferReqs[id].approvals >= approvalLimit) {
             balance[transferReqs[id].fromAddr] -= transferReqs[id].amount;
-            balance[transferReqs[id].toAddr] += transferReqs[id].amount;
+            transferReqs[id].toAddr.transfer(transferReqs[id].amount);
             transferReqs[id].complete = true;
         }
     }
