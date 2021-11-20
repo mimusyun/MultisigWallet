@@ -13,6 +13,8 @@ contract MultiSigWallet {
         bool complete;
     }
     
+    // todo add events and emit
+    
     address[] public owners;
     uint approvalLimit;
     TransferRequest[] transferReqs;
