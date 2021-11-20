@@ -13,7 +13,7 @@ contract MultiSigWallet {
     }
     
     address[] public owners;
-    uint numRequiredApproval;
+    uint approvalLimit;
     TransferRequest[] transferReqs;
     
     /* transferApprovalCnt {FromAddress => {ToAddress => {TrxIdx => ApproveCnt}} */
@@ -27,12 +27,12 @@ contract MultiSigWallet {
         _;
     }
     
-    constructor(address[] memory _ownerAddrs, uint _numRequiredApproval) {
-        require(_ownerAddrs.length >= _numRequiredApproval, "The number of required approvals cannot exceed the number of approvers");
-        owners = _ownerAddrs;
-        numRequiredApproval = _numRequiredApproval;
-        for (uint i=0; i<_ownerAddrs.length; i++) {
-            isApproved[_ownerAddrs[i]] = true;
+    constructor(address[] memory _owners, uint _approvalLimit) {
+        require(_owners.length >= _approvalLimit, "The number of required approvals cannot exceed the number of approvers");
+        owners = _owners;
+        approvalLimit = _approvalLimit;
+        for (uint i=0; i<_owners.length; i++) {
+            isApproved[_owners[i]] = true;
         }
     }
     
@@ -49,7 +49,7 @@ contract MultiSigWallet {
         require(!transferReqs[id].complete, "Transfer already complete");
         require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
         transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] += 1;
-        if (transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] >= numRequiredApproval) {
+        if (transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] >= approvalLimit) {
             balance[transferReqs[id].fromAddr] -= transferReqs[id].amount;
             balance[transferReqs[id].toAddr] += transferReqs[id].amount;
             transferReqs[id].complete = true;
@@ -66,7 +66,7 @@ contract MultiSigWallet {
     }
     
     function getRequiredNumApproval() public view returns (uint) {
-        return numRequiredApproval;
+        return approvalLimit;
     }
     
     function getTransferRequests() public view returns (TransferRequest[] memory){
