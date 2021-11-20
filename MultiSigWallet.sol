@@ -9,18 +9,17 @@ contract MultiSigWallet {
         address fromAddr;
         address payable toAddr;
         uint amount;
+        uint approvals;
         bool complete;
     }
     
     address[] public owners;
     uint approvalLimit;
     TransferRequest[] transferReqs;
-    
-    /* transferApprovalCnt {FromAddress => {ToAddress => {TrxIdx => ApproveCnt}} */
-    mapping(address => mapping(address => mapping(uint => uint))) transferApprovalCnt;
-    
+
     mapping(address => uint) balance;
     mapping(address => bool) isOwner;
+    mapping(address => mapping(uint => bool)) approvals;
     
     modifier onlyOwners() {
         require(isOwner[msg.sender], "Address not owner");
@@ -42,14 +41,14 @@ contract MultiSigWallet {
     
     function createTransferRequest(uint amount, address payable recipient) public onlyOwners {
         require(msg.sender != recipient, "Don't transfer money to yourself");
-        transferReqs.push(TransferRequest(msg.sender, recipient, amount, false));
+        transferReqs.push(TransferRequest(msg.sender, recipient, amount, 0, false));
     } 
     
     function approveTransferRequest(uint id) public onlyOwners {
         require(!transferReqs[id].complete, "Transfer already complete");
         require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
-        transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] += 1;
-        if (transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] >= approvalLimit) {
+        transferReqs[id].approvals += 1;
+        if (transferReqs[id].approvals >= approvalLimit) {
             balance[transferReqs[id].fromAddr] -= transferReqs[id].amount;
             balance[transferReqs[id].toAddr] += transferReqs[id].amount;
             transferReqs[id].complete = true;
