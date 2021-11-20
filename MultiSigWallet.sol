@@ -20,10 +20,10 @@ contract MultiSigWallet {
     mapping(address => mapping(address => mapping(uint => uint))) transferApprovalCnt;
     
     mapping(address => uint) balance;
-    mapping(address => bool) isApproved;
+    mapping(address => bool) isOwner;
     
     modifier onlyOwners() {
-        require(isApproved[msg.sender], "Address not owner");
+        require(isOwner[msg.sender], "Address not owner");
         _;
     }
     
@@ -32,7 +32,7 @@ contract MultiSigWallet {
         owners = _owners;
         approvalLimit = _approvalLimit;
         for (uint i=0; i<_owners.length; i++) {
-            isApproved[_owners[i]] = true;
+            isOwner[_owners[i]] = true;
         }
     }
     
@@ -62,7 +62,7 @@ contract MultiSigWallet {
     }
     
     function getApprovalRight() public view returns (bool) {
-        return isApproved[msg.sender];
+        return isOwner[msg.sender];
     }
     
     function getRequiredNumApproval() public view returns (uint) {
