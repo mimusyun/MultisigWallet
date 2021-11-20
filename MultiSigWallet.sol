@@ -16,7 +16,7 @@ contract MultiSigWallet {
     /* transferApprovalCnt {FromAddress => {ToAddress => {TrxIdx => ApproveCnt}} */
     mapping(address => mapping(address => mapping(uint => uint))) transferApprovalCnt;
     
-    address owner;
+    address[] public owners;
     uint numRequiredApproval;
     mapping(address => uint) balance;
     mapping(address => bool) isApproved;
@@ -28,7 +28,7 @@ contract MultiSigWallet {
     
     constructor(address[] memory _ownerAddrs, uint _numRequiredApproval) {
         require(_ownerAddrs.length >= _numRequiredApproval, "The number of required approvals cannot exceed the number of approvers");
-        owner = msg.sender;
+        owners = _ownerAddrs;
         numRequiredApproval = _numRequiredApproval;
         for (uint i=0; i<_ownerAddrs.length; i++) {
             isApproved[_ownerAddrs[i]] = true;
@@ -56,10 +56,6 @@ contract MultiSigWallet {
     }
     
     /* Getter below */
-    function getContractOwner() public view returns (address) {
-        return owner;
-    }
-    
     function getBalance() public view returns (uint) {
         return balance[msg.sender];
     }
