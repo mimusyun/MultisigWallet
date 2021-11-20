@@ -62,8 +62,12 @@ contract MultiSigWallet {
     }
     
     /* Getter below */
-    function getTransferRequests() public view returns (TransferRequest[] memory){
+    function getTransferRequests() public view returns (TransferRequest[] memory) {
         return transferReqs;
+    }
+    
+    function getBalance() public view returns (uint) {
+        return balance[msg.sender];
     }
     
 }
