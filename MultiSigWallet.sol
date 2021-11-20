@@ -27,8 +27,7 @@ contract MultiSigWallet {
     }
     
     constructor(address[] memory _ownerAddrs, uint _numRequiredApproval) {
-        require(_numRequiredApproval > 0, "Number of approvals needs to be more than zero");
-        require(_numRequiredApproval <= _ownerAddrs.length, "The number of required approvals cannot exceed the number of approvers");
+        require(_ownerAddrs.length >= _numRequiredApproval, "The number of required approvals cannot exceed the number of approvers");
         owner = msg.sender;
         numRequiredApproval = _numRequiredApproval;
         for (uint i=0; i<_ownerAddrs.length; i++) {
