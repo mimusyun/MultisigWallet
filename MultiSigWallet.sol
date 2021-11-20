@@ -39,15 +39,21 @@ contract MultiSigWallet {
         balance[msg.sender] += msg.value;
     }
     
-    function createTransferRequest(uint amount, address payable recipient) public onlyOwners {
+    function createTransfer(uint amount, address payable recipient) public onlyOwners {
         require(msg.sender != recipient, "Don't transfer money to yourself");
         transferReqs.push(TransferRequest(msg.sender, recipient, amount, 0, false));
     } 
     
-    function approveTransferRequest(uint id) public onlyOwners {
-        require(!transferReqs[id].complete, "Transfer already complete");
+    function approve(uint id) public onlyOwners {
+        require(!approvals[msg.sender][id], "You already approved this transfer");
+        require(!transferReqs[id].complete, "Transfer is already complete");
         require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
+        
+        // approve by msg.sender
+        approvals[msg.sender][id] = true;
         transferReqs[id].approvals += 1;
+        
+        // execute transfer
         if (transferReqs[id].approvals >= approvalLimit) {
             balance[transferReqs[id].fromAddr] -= transferReqs[id].amount;
             balance[transferReqs[id].toAddr] += transferReqs[id].amount;
@@ -56,18 +62,6 @@ contract MultiSigWallet {
     }
     
     /* Getter below */
-    function getBalance() public view returns (uint) {
-        return balance[msg.sender];
-    }
-    
-    function getApprovalRight() public view returns (bool) {
-        return isOwner[msg.sender];
-    }
-    
-    function getRequiredNumApproval() public view returns (uint) {
-        return approvalLimit;
-    }
-    
     function getTransferRequests() public view returns (TransferRequest[] memory){
         return transferReqs;
     }
