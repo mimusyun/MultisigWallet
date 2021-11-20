@@ -11,7 +11,9 @@ contract MultiSigWallet {
     }
     
     TransferRequest[] transferReqs;
-    mapping(address => mapping(address => mapping(uint => uint))) transferApprovals;
+    
+    /* transferApprovalCnt {FromAddress => {ToAddress => {TrxIdx => ApproveCnt}} */
+    mapping(address => mapping(address => mapping(uint => uint))) transferApprovalCnt;
     
     address owner;
     uint numRequiredApproval;
@@ -39,8 +41,13 @@ contract MultiSigWallet {
     } 
     
     function approveTransferRequest(uint id) public {
+        require(isApproved[msg.sender], "Address not owner");
         require(balance[transferReqs[id].fromAddr] >= transferReqs[id].amount, "Balance not sufficient");
-        transferApprovals[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] += 1;
+        transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] += 1;
+        if (transferApprovalCnt[transferReqs[id].fromAddr][transferReqs[id].toAddr][id] >= numRequiredApproval) {
+            balance[transferReqs[id].fromAddr] -= transferReqs[id].amount;
+            balance[transferReqs[id].toAddr] += transferReqs[id].amount;
+        }
     }
     
     /* Getter below */
