@@ -34,4 +34,20 @@ A multisig wallet is a wallet where multiple “signatures” or approvals are n
     approve(0);
     
 5. Check Balance
+
+6. Make sure same owner cannot approve the same Transfer more than once
+
+    Go to the account "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2"
+    approve(0);
+    => Error: "You already approved this transfer"
+
+7. Make sure the same Transfer cannot be executed more than once
+
+    Go to the account "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
+    approve(0);
+    => Error: "Transfer is already complete"
+
+
+
+
     
